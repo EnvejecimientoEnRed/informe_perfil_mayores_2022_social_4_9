@@ -48,7 +48,7 @@ export function initChart(iframe) {
             .call(d3.axisBottom(x));
 
         let y = d3.scaleLinear()
-            .domain([0, 25])
+            .domain([0, 100])
             .range([ height, 0 ]);
         svg.append("g")
             .call(d3.axisLeft(y));
@@ -62,41 +62,41 @@ export function initChart(iframe) {
             .domain(tipos)
             .range([COLOR_PRIMARY_1, COLOR_COMP_1]);
 
-            function init() {
-                svg.append("g")
-                    .selectAll("g")
-                    .data(data)
-                    .enter()
-                    .append("g")
-                    .attr("transform", function(d) { return "translate(" + x(d.Edades) + ",0)"; })
-                    .selectAll("rect")
-                    .data(function(d) { return tipos.map(function(key) { return {key: key, value: d[key]}; }); })
-                    .enter()
-                    .append("rect")
-                    .attr('class', 'prueba')
-                    .attr("x", function(d) { return xSubgroup(d.key); })
-                    .attr("width", xSubgroup.bandwidth())
-                    .attr("fill", function(d) { return color(d.key); })
-                    .attr("y", function(d) { return y(0); })                
-                    .attr("height", function(d) { return height - y(0); })
-                    .transition()
-                    .duration(2000)
-                    .attr("y", function(d) { return y(d.value); })                
-                    .attr("height", function(d) { return height - y(d.value); });
-            }
-    
-            function animateChart() {
-                svg.selectAll(".prueba")
-                    .attr("x", function(d) { return xSubgroup(d.key); })
-                    .attr("width", xSubgroup.bandwidth())
-                    .attr("fill", function(d) { return color(d.key); })
-                    .attr("y", function(d) { return y(0); })                
-                    .attr("height", function(d) { return height - y(0); })
-                    .transition()
-                    .duration(2000)
-                    .attr("y", function(d) { return y(d.value); })                
-                    .attr("height", function(d) { return height - y(d.value); });
-            }
+        function init() {
+            svg.append("g")
+                .selectAll("g")
+                .data(data)
+                .enter()
+                .append("g")
+                .attr("transform", function(d) { return "translate(" + x(d.Edades) + ",0)"; })
+                .selectAll("rect")
+                .data(function(d) { return tipos.map(function(key) { return {key: key, value: d[key]}; }); })
+                .enter()
+                .append("rect")
+                .attr('class', 'prueba')
+                .attr("x", function(d) { return xSubgroup(d.key); })
+                .attr("width", xSubgroup.bandwidth())
+                .attr("fill", function(d) { return color(d.key); })
+                .attr("y", function(d) { return y(0); })                
+                .attr("height", function(d) { return height - y(0); })
+                .transition()
+                .duration(2000)
+                .attr("y", function(d) { return y(d.value); })                
+                .attr("height", function(d) { return height - y(d.value); });
+        }
+
+        function animateChart() {
+            svg.selectAll(".prueba")
+                .attr("x", function(d) { return xSubgroup(d.key); })
+                .attr("width", xSubgroup.bandwidth())
+                .attr("fill", function(d) { return color(d.key); })
+                .attr("y", function(d) { return y(0); })                
+                .attr("height", function(d) { return height - y(0); })
+                .transition()
+                .duration(2000)
+                .attr("y", function(d) { return y(d.value); })                
+                .attr("height", function(d) { return height - y(d.value); });
+        }
 
         /////
         /////
@@ -123,13 +123,15 @@ export function initChart(iframe) {
         setRRSSLinks('personas_felices_europa');
 
         //Captura de pantalla de la visualización
-        setChartCanvas();
-        setCustomCanvas();
+        //setChartCanvas();
+        setTimeout(() => {
+            setCustomCanvas(); 
+        }, 3000);        
 
         let pngDownload = document.getElementById('pngImage');
 
         pngDownload.addEventListener('click', function(){
-            setChartCanvasImage('personas_felices_europa');
+            //setChartCanvasImage('personas_felices_europa');
             setChartCustomCanvasImage('personas_felices_europa');
         });
 
