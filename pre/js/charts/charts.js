@@ -10,6 +10,7 @@ import { setFixedIframeUrl } from './chart_helpers';
 //Colores fijos
 const COLOR_PRIMARY_1 = '#F8B05C',
 COLOR_COMP_1 = '#528FAD';
+let tooltip = d3.select('#tooltip');
 
 export function initChart(iframe) {
     //Lectura de datos
@@ -33,7 +34,7 @@ export function initChart(iframe) {
         let x = d3.scaleBand()
             .domain(edades)
             .range([0, width])
-            .padding([0.35]);
+            .padding(0.5);
 
         let xAxis = function(svg) {
             svg.call(d3.axisBottom(x));
@@ -86,7 +87,7 @@ export function initChart(iframe) {
                 .append("g")
                 .attr("transform", function(d) { return "translate(" + x(d.Edades) + ",0)"; })
                 .attr('class', function(d) {
-                    return 'grupo-' + d.Edades;
+                    return 'grupo_' + d.Edades;
                 })
                 .selectAll("rect")
                 .data(function(d) { return tipos.map(function(key) { return {key: key, value: d[key]}; }); })
@@ -115,9 +116,10 @@ export function initChart(iframe) {
 
                     //Tooltip > Recuperamos el año de referencia
                     let currentEdad = this.parentNode.classList[0];
+                    let tipo = d.key == 'ESPAÑA_TOTAL' ? 'España' : 'UE-28';
 
-                    let html = '<p class="chart__tooltip--title">Grupo edad: ' + currentEdad.split('-')[1] + '</p>' + 
-                            '<p class="chart__tooltip--text">Un <b>' + numberWithCommas3(parseFloat(d.value).toFixed(1)) + '%</b> de personas en <b>' + d.key.split('_')[0] + '</b> en este grupo de edad se declaran felices</p>';
+                    let html = '<p class="chart__tooltip--title">Grupo edad: ' + currentEdad.split('_')[1] + '</p>' + 
+                            '<p class="chart__tooltip--text">Un <b>' + numberWithCommas3(parseFloat(d.value).toFixed(1)) + '%</b> de personas en <b>' + tipo + '</b> en este grupo de edad se declaran felices</p>';
                     
                     tooltip.html(html);
 
