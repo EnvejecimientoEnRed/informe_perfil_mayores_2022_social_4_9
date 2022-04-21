@@ -1,23 +1,15 @@
 //Desarrollo de las visualizaciones
 import * as d3 from 'd3';
-//import { numberWithCommas2 } from './helpers';
-//import { getInTooltip, getOutTooltip, positionTooltip } from './modules/tooltip';
+import { numberWithCommas3 } from '../helpers';
+import { getInTooltip, getOutTooltip, positionTooltip } from '../modules/tooltip';
 import { setChartHeight } from '../modules/height';
 import { setChartCanvas, setChartCanvasImage } from '../modules/canvas-image';
 import { setRRSSLinks } from '../modules/rrss';
 import { setFixedIframeUrl } from './chart_helpers';
 
 //Colores fijos
-const COLOR_PRIMARY_1 = '#F8B05C', 
-COLOR_PRIMARY_2 = '#E37A42', 
-COLOR_ANAG_1 = '#D1834F', 
-COLOR_ANAG_2 = '#BF2727', 
-COLOR_COMP_1 = '#528FAD', 
-COLOR_COMP_2 = '#AADCE0', 
-COLOR_GREY_1 = '#B5ABA4', 
-COLOR_GREY_2 = '#64605A', 
-COLOR_OTHER_1 = '#B58753', 
-COLOR_OTHER_2 = '#731854';
+const COLOR_PRIMARY_1 = '#F8B05C',
+COLOR_COMP_1 = '#528FAD';
 
 export function initChart(iframe) {
     //Lectura de datos
@@ -43,15 +35,39 @@ export function initChart(iframe) {
             .range([0, width])
             .padding([0.35]);
 
+        let xAxis = function(svg) {
+            svg.call(d3.axisBottom(x));
+            svg.call(function(g){g.selectAll('.tick line').remove()});
+            svg.call(function(g){g.select('.domain').remove()});
+        }
+
         svg.append("g")
             .attr("transform", "translate(0," + height + ")")
-            .call(d3.axisBottom(x));
+            .call(xAxis);
 
         let y = d3.scaleLinear()
             .domain([0, 100])
             .range([ height, 0 ]);
+
+        let yAxis = function(svg) {
+            svg.call(d3.axisLeft(y).ticks(5).tickFormat(function(d,i) { return numberWithCommas3(d); }));
+            svg.call(function(g) {
+                g.call(function(g){
+                    g.selectAll('.tick line')
+                        .attr('class', function(d,i) {
+                            if (d == 0) {
+                                return 'line-special';
+                            }
+                        })
+                        .attr('x1', '0%')
+                        .attr('x2', `${width}`)
+                });
+            });
+        }
+
         svg.append("g")
-            .call(d3.axisLeft(y));
+            .attr("class", "yaxis")
+            .call(yAxis);
 
         let xSubgroup = d3.scaleBand()
             .domain(tipos)
@@ -69,16 +85,57 @@ export function initChart(iframe) {
                 .enter()
                 .append("g")
                 .attr("transform", function(d) { return "translate(" + x(d.Edades) + ",0)"; })
+                .attr('class', function(d) {
+                    return 'grupo-' + d.Edades;
+                })
                 .selectAll("rect")
                 .data(function(d) { return tipos.map(function(key) { return {key: key, value: d[key]}; }); })
                 .enter()
                 .append("rect")
-                .attr('class', 'prueba')
+                .attr('class', function(d) {
+                    return 'rect rect_' + d.key;
+                })
                 .attr("x", function(d) { return xSubgroup(d.key); })
                 .attr("width", xSubgroup.bandwidth())
                 .attr("fill", function(d) { return color(d.key); })
                 .attr("y", function(d) { return y(0); })                
                 .attr("height", function(d) { return height - y(0); })
+                .on('mouseover', function(d,i,e) {
+                    //Opacidad en barras
+                    let css = e[i].getAttribute('class').split(' ')[1];
+                    let bars = svg.selectAll('.rect');                    
+            
+                    bars.each(function() {
+                        this.style.opacity = '0.4';
+                        let split = this.getAttribute('class').split(" ")[1];
+                        if(split == `${css}`) {
+                            this.style.opacity = '1';
+                        }
+                    });
+
+                    //Tooltip > Recuperamos el año de referencia
+                    let currentEdad = this.parentNode.classList[0];
+
+                    let html = '<p class="chart__tooltip--title">Grupo edad: ' + currentEdad.split('-')[1] + '</p>' + 
+                            '<p class="chart__tooltip--text">Un <b>' + numberWithCommas3(parseFloat(d.value).toFixed(1)) + '%</b> de personas en <b>' + d.key.split('_')[0] + '</b> en este grupo de edad se declaran felices</p>';
+                    
+                    tooltip.html(html);
+
+                    //Tooltip
+                    positionTooltip(window.event, tooltip);
+                    getInTooltip(tooltip);
+
+                })
+                .on('mouseout', function(d,i,e) {
+                    //Quitamos los estilos de la línea
+                    let bars = svg.selectAll('.rect');
+                    bars.each(function() {
+                        this.style.opacity = '1';
+                    });
+                
+                    //Quitamos el tooltip
+                    getOutTooltip(tooltip); 
+                })
                 .transition()
                 .duration(2000)
                 .attr("y", function(d) { return y(d.value); })                
@@ -86,7 +143,7 @@ export function initChart(iframe) {
         }
 
         function animateChart() {
-            svg.selectAll(".prueba")
+            svg.selectAll(".rect")
                 .attr("x", function(d) { return xSubgroup(d.key); })
                 .attr("width", xSubgroup.bandwidth())
                 .attr("fill", function(d) { return color(d.key); })
