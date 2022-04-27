@@ -12,7 +12,7 @@ const COLOR_PRIMARY_1 = '#F8B05C',
 COLOR_COMP_1 = '#528FAD';
 let tooltip = d3.select('#tooltip');
 
-export function initChart(iframe) {
+export function initChart() {
     //Lectura de datos
     d3.csv('https://raw.githubusercontent.com/CarlosMunozDiazCSIC/informe_perfil_mayores_2022_social_4_9/main/data/personas_felices_2018_eurostat_v2.csv', function(error,data) {
         if (error) throw error;
@@ -167,6 +167,10 @@ export function initChart(iframe) {
         //Animación del gráfico
         document.getElementById('replay').addEventListener('click', function() {
             animateChart();
+
+            setTimeout(() => {
+                setChartCanvas(); 
+            }, 4000);
         });
 
         /////
@@ -182,7 +186,9 @@ export function initChart(iframe) {
         setRRSSLinks('personas_felices_europa');
 
         //Captura de pantalla de la visualización
-        setChartCanvas();   
+        setTimeout(() => {
+            setChartCanvas(); 
+        }, 4000);  
 
         let pngDownload = document.getElementById('pngImage');
 
@@ -191,6 +197,6 @@ export function initChart(iframe) {
         });
 
         //Altura del frame
-        setChartHeight(iframe);
+        setChartHeight();
     });    
 }
