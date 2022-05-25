@@ -14,7 +14,7 @@ let tooltip = d3.select('#tooltip');
 
 export function initChart() {
     //Lectura de datos
-    d3.csv('https://raw.githubusercontent.com/CarlosMunozDiazCSIC/informe_perfil_mayores_2022_social_4_9/main/data/personas_felices_2018_eurostat_v2.csv', function(error,data) {
+    d3.csv('https://raw.githubusercontent.com/EnvejecimientoEnRed/informe_perfil_mayores_2022_social_4_9/main/data/personas_felices_2018_eurostat_v2.csv', function(error,data) {
         if (error) throw error;
 
         let margin = {top: 12.5, right: 10, bottom: 25, left: 30},
